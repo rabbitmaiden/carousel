@@ -23,6 +23,7 @@ def blackScreen():
   return screen
 
 def toggleSound(child):
+  global muted
   if muted:
     playSound(child)
     muted = True
