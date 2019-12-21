@@ -9,6 +9,8 @@ import glob
 import pygame
 import re
 
+muted = False
+
 class BlackScreenException(Exception):
   pass
 
@@ -20,14 +22,28 @@ def blackScreen():
   pygame.mouse.set_visible(0)
   return screen
 
+def toggleSound(child):
+  if muted:
+    playSound(child)
+    muted = True
+  else:
+    muteMovie(child)
+    muted = False
+
+
+def muteMovie(child):
+  child.communicate(input=b"---")[0]
+
+def playSound(child):
+  child.communicate(input=b"+++")[0]
 
 def stopMovie(child):
-  child.stdin.write("q")
+  child.communicate(input=b"q")[0]
 
 def playVideo(video):
   print('Playing ' + video)
   try:
-    child = subprocess.Popen(['/usr/bin/omxplayer', '-o local', '--no-osd', video], stdin = subprocess.PIPE)
+    child = subprocess.Popen(['/usr/bin/omxplayer', '--no-osd', video], stdin = subprocess.PIPE)
     while child.poll() is None:
       # Keyboard Events
       # ESC = quit
@@ -38,6 +54,10 @@ def playVideo(video):
         elif (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
           stopMovie(child)
           return True
+        elif (event.type == pygame.KEYDOWN and event.key == pygame.K_m):
+          toggleSound(child)
+
+      time.sleep(0.1)
     time.sleep(2)
     return True
   except BlackScreenException:
