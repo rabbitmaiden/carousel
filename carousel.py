@@ -9,9 +9,17 @@ import glob
 import pygame
 import re
 
-
 class BlackScreenException(Exception):
   pass
+
+def blackScreen():
+  pygame.display.init();
+  black = 0, 0, 0
+  screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+  screen.fill(black)
+  pygame.mouse.set_visible(0)
+  return screen
+
 
 def stopMovie(child):
   child.stdin.write("q")
@@ -19,7 +27,7 @@ def stopMovie(child):
 def playVideo(video):
   print('Playing ' + video)
   try:
-    child = subprocess.Popen(['/usr/bin/omxplayer', '-n -1', '--no-osd', video], stdin = subprocess.PIPE)
+    child = subprocess.Popen(['/usr/bin/omxplayer', '-o local', '--no-osd', video], stdin = subprocess.PIPE)
     while child.poll() is None:
       # Keyboard Events
       # ESC = quit
@@ -36,39 +44,40 @@ def playVideo(video):
     stopMovie(child)
     raise BlackScreenException
   except subprocess.CalledProcessError:
-    print "omxplayer output:", e.output
+    print ("omxplayer output:", e.output)
     return False
 
 
-def playVideos(videos):
+def playVideos(path, videos):
   for video in videos:
     isMp4 = re.match(".*\.mp4$", video)
     isMkv = re.match(".*\.mkv$", video)
     if isMp4 or isMkv:
-      playNext = playVideo(video)    
+      playNext = playVideo(path + "/" + video)
       if not playNext:
         return False
   return True
 
 def loadVideos(path):
-  videos = glob.glob(path)
+  videos = os.listdir(path)
   random.shuffle(videos)
   while True:
-    keepPlaying = playVideos(videos)
+    keepPlaying = playVideos(path, videos)
     if not keepPlaying:
       return
 
-
-
 def done():
+  pygame.display.quit()
+  pygame.quit()
   sys.exit(0)
 
 try:
   while True:
+    screen = blackScreen()
     if len(sys.argv) > 1:
       loadVideos(sys.argv[1])
     else:
-      loadVideos("./videos")
+      loadVideos(os.getcwd() + "/videos")
 except KeyboardInterrupt:
   done()
 except SystemExit:
