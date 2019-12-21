@@ -8,6 +8,7 @@ import time
 import glob
 import pygame
 import re
+import pexpect
 
 muted = False
 
@@ -33,19 +34,23 @@ def toggleSound(child):
 
 
 def muteMovie(child):
-  child.communicate(input=b"---")[0]
+  for i = 1 to 10
+    child.write("-")
+    time.sleep(0.1)
 
 def playSound(child):
-  child.communicate(input=b"+++")[0]
+  for i = 1 to 10
+    child.write("-")
+    time.sleep(0.1)
 
 def stopMovie(child):
-  child.communicate(input=b"q")[0]
+  child.kill()
 
 def playVideo(video):
   print('Playing ' + video)
   try:
-    child = subprocess.Popen(['/usr/bin/omxplayer', '--no-osd', video], stdin = subprocess.PIPE)
-    while child.poll() is None:
+    child = pexpect.spawn("/usr/bin/omxplayer --no-osd " + video)
+    while child.isalive() is None:
       # Keyboard Events
       # ESC = quit
       # SPACE = skip
@@ -64,9 +69,8 @@ def playVideo(video):
   except BlackScreenException:
     stopMovie(child)
     raise BlackScreenException
-  except subprocess.CalledProcessError:
-    print ("omxplayer output:", e.output)
-    return False
+  except pexpect.ExceptionPexpect:
+    return True
 
 
 def playVideos(path, videos):
