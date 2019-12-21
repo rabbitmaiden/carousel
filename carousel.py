@@ -34,23 +34,23 @@ def toggleSound(child):
 
 
 def muteMovie(child):
-  for i in range(1,10):
+  for i in range(1,15):
     child.write("-")
-    time.sleep(0.1)
+    child.expect("Current Volume:")
 
 def playSound(child):
-  for i in range(1,10):
+  for i in range(1,15):
     child.write("-")
-    time.sleep(0.1)
+    child.expect("Current Volume:")
 
 def stopMovie(child):
-  child.kill()
+  child.write("q")
 
 def playVideo(video):
   print('Playing ' + video)
   try:
     child = pexpect.spawn("/usr/bin/omxplayer --no-osd " + video)
-    while child.isalive() is None:
+    while child.isalive():
       # Keyboard Events
       # ESC = quit
       # SPACE = skip
@@ -75,6 +75,7 @@ def playVideo(video):
 
 def playVideos(path, videos):
   for video in videos:
+    video = video.replace(" ", "\ ")
     isMp4 = re.match(".*\.mp4$", video)
     isMkv = re.match(".*\.mkv$", video)
     if isMp4 or isMkv:
