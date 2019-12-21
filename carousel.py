@@ -34,12 +34,12 @@ def toggleSound(child):
 
 
 def muteMovie(child):
-  for i = 1 to 10
+  for i in range(1,10):
     child.write("-")
     time.sleep(0.1)
 
 def playSound(child):
-  for i = 1 to 10
+  for i in range(1,10):
     child.write("-")
     time.sleep(0.1)
 
