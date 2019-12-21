@@ -35,7 +35,7 @@ def playVideo(video):
   except BlackScreenException:
     stopMovie(child)
     raise BlackScreenException
-  except subprocess.CalledProcessError, e:
+  except subprocess.CalledProcessError:
     print "omxplayer output:", e.output
     return False
 
