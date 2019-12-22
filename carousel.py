@@ -10,8 +10,6 @@ import pygame
 import re
 import pexpect
 
-muted = False
-
 class BlackScreenException(Exception):
   pass
 
@@ -27,20 +25,20 @@ def toggleSound(child):
   global muted
   if muted:
     playSound(child)
-    muted = True
+    muted = 0
   else:
     muteMovie(child)
-    muted = False
+    muted = 1
 
 
 def muteMovie(child):
-  for i in range(1,15):
+  for i in range(1,20):
     child.write("-")
     child.expect("Current Volume:")
 
 def playSound(child):
-  for i in range(1,15):
-    child.write("-")
+  for i in range(1,20):
+    child.write("=")
     child.expect("Current Volume:")
 
 def stopMovie(child):
@@ -49,7 +47,10 @@ def stopMovie(child):
 def playVideo(video):
   print('Playing ' + video)
   try:
-    child = pexpect.spawn("/usr/bin/omxplayer --no-osd " + video)
+    muteoption = ""
+    if muted:
+      muteoption = "--vol -6000 "
+    child = pexpect.spawn("/usr/bin/omxplayer --no-osd " + muteoption + video)
     while child.isalive():
       # Keyboard Events
       # ESC = quit
@@ -86,8 +87,8 @@ def playVideos(path, videos):
 
 def loadVideos(path):
   videos = os.listdir(path)
-  random.shuffle(videos)
   while True:
+    random.shuffle(videos)
     keepPlaying = playVideos(path, videos)
     if not keepPlaying:
       return
@@ -96,6 +97,8 @@ def done():
   pygame.display.quit()
   pygame.quit()
   sys.exit(0)
+
+muted = 1
 
 try:
   while True:
