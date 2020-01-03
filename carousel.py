@@ -9,6 +9,7 @@ import glob
 import pygame
 import re
 import pexpect
+import argparse
 
 class BlackScreenException(Exception):
   pass
@@ -88,7 +89,10 @@ def playVideos(path, videos):
 def loadVideos(path):
   videos = os.listdir(path)
   while True:
-    random.shuffle(videos)
+    if (args.sequential):
+      random.shuffle(videos)
+    else
+      videos.sort()
     keepPlaying = playVideos(path, videos)
     if not keepPlaying:
       return
@@ -99,12 +103,16 @@ def done():
   sys.exit(0)
 
 muted = 1
+parser = argparse.ArgumentParser(description='Play some videos')
+parser.add_argument('--sequential', action='store_true')
+parser.add_argument('--path')
+args = parser.parse_args()
 
 try:
   while True:
     screen = blackScreen()
-    if len(sys.argv) > 1:
-      loadVideos(sys.argv[1])
+    if args.path != None:
+      loadVideos(args.path)
     else:
       loadVideos(os.getcwd() + "/videos")
 except KeyboardInterrupt:
