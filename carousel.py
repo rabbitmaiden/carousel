@@ -105,12 +105,16 @@ def done():
 muted = 1
 parser = argparse.ArgumentParser(description='Play some videos')
 parser.add_argument('--sequential', action='store_true')
+parser.add_argument('--unmuted', action='store_true')
 parser.add_argument('--path')
 args = parser.parse_args()
 
 try:
   while True:
     screen = blackScreen()
+    if args.unmuted:
+      muted = 0;
+
     if args.path != None:
       loadVideos(args.path)
     else:
