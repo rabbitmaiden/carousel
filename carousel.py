@@ -90,9 +90,10 @@ def loadVideos(path):
   videos = os.listdir(path)
   while True:
     if (args.sequential):
-      random.shuffle(videos)
-    else:
       videos.sort()
+    else:
+      random.shuffle(videos)
+
     keepPlaying = playVideos(path, videos)
     if not keepPlaying:
       return
