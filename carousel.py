@@ -10,6 +10,7 @@ import pygame
 import re
 import pexpect
 import argparse
+import pprint
 
 class BlackScreenException(Exception):
   pass
@@ -51,20 +52,11 @@ def playVideo(video):
     muteoption = ""
     if muted:
       muteoption = "--vol -6000 "
-    child = pexpect.spawn("/usr/bin/omxplayer --no-osd " + muteoption + video)
+    child = pexpect.spawn("/usr/bin/omxplayer --no-osd --aspect-mode fill " + muteoption + video)
     while child.isalive():
       # Keyboard Events
       # ESC = quit
       # SPACE = skip
-      for event in pygame.event.get():
-        if (event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE)):
-          raise BlackScreenException()
-        elif (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
-          stopMovie(child)
-          return True
-        elif (event.type == pygame.KEYDOWN and event.key == pygame.K_m):
-          toggleSound(child)
-
       time.sleep(0.1)
     time.sleep(2)
     return True
@@ -74,6 +66,20 @@ def playVideo(video):
   except pexpect.ExceptionPexpect:
     return True
 
+def playScript(script, duration):
+  print("playing " + script + " for " + str(duration))
+  try:
+    child = pexpect.spawn("./" + script + ".sh")
+    child.logfile = sys.stdout
+    endTime = time.time() + duration
+    while child.isalive():
+      time.sleep(1.0)
+      if time.time() >= endTime:
+        child.close()
+        return True
+  except pexpect.ExceptionPexpect:
+    return True
+  
 
 def playVideos(path, videos):
   for video in videos:
@@ -88,15 +94,11 @@ def playVideos(path, videos):
 
 def loadVideos(path):
   videos = os.listdir(path)
-  while True:
-    if (args.sequential):
-      videos.sort()
-    else:
-      random.shuffle(videos)
-
-    keepPlaying = playVideos(path, videos)
-    if not keepPlaying:
-      return
+  if (args.sequential):
+    videos.sort()
+  else:
+    random.shuffle(videos)
+  return videos
 
 def done():
   pygame.display.quit()
@@ -112,14 +114,32 @@ args = parser.parse_args()
 
 try:
   while True:
-    screen = blackScreen()
+    try:
+      screen = blackScreen()
+    except:
+      print("could not start pygame")
     if args.unmuted:
       muted = 0;
 
+    videos = []
     if args.path != None:
-      loadVideos(args.path)
+      videos = loadVideos(args.path)
     else:
-      loadVideos(os.getcwd() + "/videos")
+      videos = loadVideos(os.getcwd() + "/videos")
+
+    while True:
+      for video in videos:
+        video = video.replace(" ", "\ ")
+        isMp4 = re.match(".*\.mp4$", video)
+        isMkv = re.match(".*\.mkv$", video)
+        if isMp4 or isMkv:
+          playVideo("/home/alice/barsandtone.mp4")
+          playScript("webcam", 3 * 60.0)
+          playScript("garage", 3 * 60.0)
+          playScript("desk", 3 * 60.0)
+          playVideo("/home/alice/barsandtone.mp4")
+          playVideo(args.path + "/" + video)
+
 except KeyboardInterrupt:
   done()
 except SystemExit:

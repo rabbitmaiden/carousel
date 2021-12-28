@@ -8,4 +8,4 @@ if [[ "$TTY" =~ /dev/pts/[0-9]* ]];
         exit
 fi
 
-python3 ./carousel.py $1
+./carousel.sh  >> /home/alice/output.log
