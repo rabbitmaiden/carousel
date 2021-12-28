@@ -57,6 +57,14 @@ def playVideo(video):
       # Keyboard Events
       # ESC = quit
       # SPACE = skip
+      # for event in pygame.event.get():
+      #   if (event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE)):
+      #     raise BlackScreenException()
+      #   elif (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
+      #     stopMovie(child)
+      #     return True
+      #   elif (event.type == pygame.KEYDOWN and event.key == pygame.K_m):
+      #     toggleSound(child)
       time.sleep(0.1)
     time.sleep(2)
     return True
